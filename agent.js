@@ -34,6 +34,9 @@ class Boid {
     // this.textSize = random(0, wordsSize); // random size
     this.textFont = wordsFonts[0];
     this.textFont = wordsFonts[int(random(0,wordsFonts.length))];
+
+    // Generate a table of particles for each boid
+    this.particleSystem = new ParticleSystem(createVector(this.pos.xpos,this.pos.ypos));
   }
 
   play(boids) {
@@ -50,12 +53,19 @@ class Boid {
     push();
       translate(this.pos.x, this.pos.y);
       // rotate(theta); // TO HAVE WORDS FACE THE DIRECTION THEYRE GOING TO -> very ressource demanding
+      
+      // Add a particule to the table of particles
+      this.particleSystem.addParticle();
+      // Evolve each particule of the table of particules
+      this.particleSystem.run();
+
       strokeWeight(wordsBorderWidth);
       fill(255);
       // fill(random(0, 100), random(0,150), random(100,255)); // stuttering colors
       textSize(this.textSize);
       textFont(this.textFont);
       var myText = text(this.textContent, 0, 0); // mots aléatoires
+      
     pop();
   }
 
@@ -161,4 +171,86 @@ class Boid {
       return createVector(0, 0);
     }
   }
+}
+
+// A simple Particle class
+class Particle {
+
+  constructor(position) {
+    this.acceleration = createVector(0, 0.05);
+    this.velocity = createVector(random(-1, 1), random(-1, 0));
+    this.position = position.copy();
+    this.lifespan = 255;
+  };
+
+  run() {
+    this.update();
+    this.display();
+  };
+
+  // Method to update position
+  update(){
+    this.velocity.add(this.acceleration);
+    this.position.add(this.velocity);
+    this.lifespan -= 2;
+  };
+
+  // Method to display
+  display() {
+    // stroke(200, this.lifespan);
+    stroke(200, 0);
+    strokeWeight(1);
+    fill(127, this.lifespan);
+    ellipse(this.position.x, this.position.y, 1, 1);
+  };
+
+  // Is the particle still useful?
+  isDead(){
+    return this.lifespan < 0;
+  };
+
+}
+
+class ParticleSystem {
+
+  constructor(position) {
+    this.origin = position.copy();
+    this.particles = [];
+    this.delay = 0;
+  };
+
+  addParticle() {
+    this.delay++;
+    if (this.particles.length < 25 && this.delay>5) {
+      this.particles.push(new Particle(this.origin));
+      this.delay = 0;
+    }
+  };
+
+  run() {
+    for (let i = this.particles.length-1; i >= 0; i--) {
+      let p = this.particles[i];
+      p.run();
+      if (p.isDead()) {
+        this.particles.splice(i, 1);
+      }
+    }
+    this.joinParticles();
+  };
+
+  joinParticles() {
+    for (let i = this.particles.length-1; i >= 0; i--) {
+      for (let j = this.particles.length-1; j >= 0; j--) {
+        let p = this.particles[i];
+        let dis = dist(this.particles[i].position.x, this.particles[i].position.y, this.particles[j].position.x, this.particles[j].position.y);
+        if(dis<50) {
+          stroke(100, this.particles[i].lifespan/2);
+          strokeWeight(1);
+          fill(255);
+          line(this.particles[i].position.x, this.particles[i].position.y, this.particles[j].position.x, this.particles[j].position.y);
+        }
+      }
+    }
+  }
+
 }

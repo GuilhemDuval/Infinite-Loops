@@ -45,15 +45,13 @@ function preload() {
 
 function setup() { 
   words = words[0].split(',');
-
+  
   swarm = new Swarm();
   swarm.addBoids(swarmCount);
-
   createCanvas(canvasWidth, canvasHeight);
 }
 
 function draw() { 
-  background(0, 50);
-
+  background(0);
   swarm.play();
 }
