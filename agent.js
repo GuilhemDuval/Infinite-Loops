@@ -5,9 +5,11 @@ class Swarm {
   }
 
   play() {
+    this.joinParticles();
     for (let i = 0; i < this.boids.length; i++) {
       this.boids[i].play(this.boids);
     }
+    
   }
 
   addBoid(boid) {
@@ -20,6 +22,20 @@ class Swarm {
       this.boids.push(boid);
     }
   }
+
+  joinParticles() {
+    for (let i = this.boids.length-1; i >= 0; i--) {
+      for (let j = this.boids.length-1; j >= 0; j--) {
+        let dis = dist(this.boids[i].pos.x, this.boids[i].pos.y, this.boids[j].pos.x, this.boids[j].pos.y);
+        if(dis<100) {
+          stroke(255, 100-dis);
+          strokeWeight(1);
+          line(this.boids[i].pos.x, this.boids[i].pos.y, this.boids[j].pos.x, this.boids[j].pos.y);
+        }
+      }
+    }
+  }
+
 }
 
 // Boid class
@@ -235,22 +251,6 @@ class ParticleSystem {
         this.particles.splice(i, 1);
       }
     }
-    this.joinParticles();
   };
-
-  joinParticles() {
-    for (let i = this.particles.length-1; i >= 0; i--) {
-      for (let j = this.particles.length-1; j >= 0; j--) {
-        let p = this.particles[i];
-        let dis = dist(this.particles[i].position.x, this.particles[i].position.y, this.particles[j].position.x, this.particles[j].position.y);
-        if(dis<50) {
-          stroke(100, this.particles[i].lifespan/2);
-          strokeWeight(1);
-          fill(255);
-          line(this.particles[i].position.x, this.particles[i].position.y, this.particles[j].position.x, this.particles[j].position.y);
-        }
-      }
-    }
-  }
 
 }
